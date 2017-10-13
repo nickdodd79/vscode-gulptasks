@@ -1,0 +1,12 @@
+!resources/dark/**
+!resources/light/**
+resources/**
+.vscode/**
+.vscode-test/**
+out/test/**
+test/**
+src/**
+**/*.map
+.gitignore
+tsconfig.json
+tslint.json

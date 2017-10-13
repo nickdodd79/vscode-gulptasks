@@ -1,0 +1,71 @@
+{
+	"name": "gulptasks",
+	"displayName": "Gulp Tasks",
+	"description": "A gulp task visualization and execution extension for Visual Studio Code",
+	"version": "0.0.1",
+	"author": "Nick Dodd",
+	"publisher": "nickdodd",
+	"engines": {
+		"vscode": "^1.13.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onView:gulptasks"
+	],
+	"main": "./out/src/extension",
+	"contributes": {
+		"views": {
+			"explorer": [
+				{
+					"id": "gulptasks",
+					"name": "Gulp Tasks"
+				}
+			]
+		},
+		"menus": {
+			"view/title": [
+				{
+					"command": "gulptasks.execute",
+					"when": "view == gulptasks",
+					"group": "navigation"
+				},
+				{
+					"command": "gulptasks.refresh",
+					"when": "view == gulptasks",
+					"group": "navigation"
+				}
+			]
+		},
+		"commands": [
+			{
+				"command": "gulptasks.execute",
+				"title": "Execute Task",
+				"icon": {
+					"light": "resources/light/execute.svg",
+					"dark": "resources/dark/execute.svg"
+				}
+			},
+			{
+				"command": "gulptasks.refresh",
+				"title": "Refresh Tasks",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "tsc -p ./",
+		"compile": "tsc -watch -p ./",
+		"postinstall": "node ./node_modules/vscode/bin/install"
+	},
+	"devDependencies": {
+		"@types/node": "*",
+		"typescript": "^2.1.4",
+		"vscode": "^1.0.0"
+	},
+	"dependencies": {}
+}
