@@ -1,5 +1,6 @@
 !resources/dark/**
 !resources/light/**
+!resources/gulp-logo.png
 resources/**
 .vscode/**
 .vscode-test/**
@@ -7,6 +8,7 @@ out/test/**
 test/**
 src/**
 **/*.map
+.editorconfig
 .gitignore
 tsconfig.json
 tslint.json

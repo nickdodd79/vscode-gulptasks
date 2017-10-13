@@ -2,13 +2,13 @@
 	"name": "gulptasks",
 	"displayName": "Gulp Tasks",
 	"description": "A gulp task visualization and execution extension for Visual Studio Code",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"author": "Nick Dodd",
 	"publisher": "nickdodd79",
 	"engines": {
 		"vscode": "^1.13.0"
   },
-  "icon": "https://raw.githubusercontent.com/nickdodd79/vscode-gulptasks/master/resources/gulp-logo.png",
+  "icon": "resources/gulp-logo.png",
 	"categories": [
 		"Other"
 	],
