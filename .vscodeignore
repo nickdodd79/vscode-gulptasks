@@ -5,10 +5,10 @@ resources/**
 .vscode/**
 .vscode-test/**
 out/test/**
-test/**
 src/**
-**/*.map
+out/**/*.map
 .editorconfig
 .gitignore
 tsconfig.json
 tslint.json
+vsc-extension-quickstart.md

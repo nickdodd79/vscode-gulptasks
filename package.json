@@ -2,20 +2,27 @@
 	"name": "gulptasks",
 	"displayName": "Gulp Tasks",
 	"description": "A gulp task visualization and execution extension for Visual Studio Code",
-	"version": "0.0.2",
-	"author": "Nick Dodd",
+	"version": "0.0.3",
+	"author": {
+		"name": "Nick Dodd"
+	},
 	"publisher": "nickdodd79",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/nickdodd79/vscode-gulptasks"
+	},
 	"engines": {
-		"vscode": "^1.13.0"
-  },
-  "icon": "resources/gulp-logo.png",
+		"vscode": "^1.17.0"
+	},
+	"icon": "resources/gulp-logo.png",
 	"categories": [
 		"Other"
 	],
 	"activationEvents": [
 		"onView:gulptasks"
 	],
-	"main": "./out/src/extension",
+	"main": "./out/extension",
 	"contributes": {
 		"views": {
 			"explorer": [
@@ -59,14 +66,16 @@
 		]
 	},
 	"scripts": {
-		"vscode:prepublish": "tsc -p ./",
-		"compile": "tsc -watch -p ./",
-		"postinstall": "node ./node_modules/vscode/bin/install"
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"postinstall": "node ./node_modules/vscode/bin/install",
+		"test": "npm run compile && node ./node_modules/vscode/bin/test"
 	},
 	"devDependencies": {
-		"@types/node": "*",
-		"typescript": "^2.1.4",
-		"vscode": "^1.0.0"
-	},
-	"dependencies": {}
+		"typescript": "^2.5.3",
+		"vscode": "^1.1.5",
+		"@types/node": "^7.0.43",
+		"@types/mocha": "^2.2.42"
+	}
 }

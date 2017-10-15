@@ -1,46 +1,25 @@
 'use strict';
 
 import * as vscode from 'vscode';
+import * as executer from './tasks-executer';
 
-import { TasksProvider } from './tasksprovider';
-import { exec, output } from './utils';
+import { TasksProvider } from './tasks-provider';
 
 let _task: string;
 
-async function executeTask(workspaceRoot: string | undefined) {
-  if (workspaceRoot && _task) {
-    output(`Executing '${_task}' ...`);
-
-    try {
-      const { stderr } = await exec(_task, { cwd: workspaceRoot });
-
-      if (stderr && stderr.length > 0) {
-        output(stderr);
-      } else {
-        output(`Executing '${_task}' completed.`);
-        return;
-      }
-    } catch (err) {
-      if (err.stderr) {
-        output(err.stderr);
-      }
-
-      if (err.stdout) {
-        output(err.stdout);
-      }
-    }
-
-    output(`Executing '${_task}' failed.`);
-  }
+function registerCommand(context: vscode.ExtensionContext, command: string, callback: (...args: any[]) => any): void {
+  const registration = vscode.commands.registerCommand(command, callback);
+  context.subscriptions.push(registration);
 }
 
-export function activate(_context: vscode.ExtensionContext): void {
+export function activate(context: vscode.ExtensionContext): void {
   const workspaceRoot = vscode.workspace.rootPath;
   const tasksProvider = new TasksProvider(workspaceRoot);
+  const registration = vscode.window.registerTreeDataProvider('gulptasks', tasksProvider);
 
-  vscode.window.registerTreeDataProvider('gulptasks', tasksProvider);
+  registerCommand(context, 'gulptasks.select', task => _task = task);
+  registerCommand(context, 'gulptasks.execute', () => executer.executeTask(_task, workspaceRoot));
+  registerCommand(context, 'gulptasks.refresh', () => tasksProvider.refresh());
 
-  vscode.commands.registerCommand('gulptasks.select', task => _task = task);
-  vscode.commands.registerCommand('gulptasks.execute', () => executeTask(workspaceRoot));
-  vscode.commands.registerCommand('gulptasks.refresh', () => tasksProvider.refresh());
+  context.subscriptions.push(registration);
 }

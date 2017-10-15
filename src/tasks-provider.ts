@@ -2,19 +2,20 @@
 
 import * as path from 'path';
 import * as vscode from 'vscode';
-
-import * as loader from './tasksloader';
+import * as loader from './tasks-loader';
 
 class TaskItem extends vscode.TreeItem {
+
+  contextValue = 'gulptask';
+
+  iconPath = {
+    light: path.join(__filename, '..', '..', 'resources', 'light', 'gulp.svg'),
+    dark: path.join(__filename, '..', '..', 'resources', 'dark', 'gulp.svg')
+  };
+
   constructor(public readonly label: string, public readonly collapsibleState: vscode.TreeItemCollapsibleState, public readonly command?: vscode.Command) {
     super(label, collapsibleState);
   }
-
-  contextValue = 'gulptask';
-  iconPath = {
-    light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'gulp.svg'),
-    dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', 'gulp.svg')
-  };
 }
 
 export class TasksProvider implements vscode.TreeDataProvider<TaskItem> {
@@ -40,6 +41,9 @@ export class TasksProvider implements vscode.TreeDataProvider<TaskItem> {
 
     return new Promise(resolve => {
       if (!element) {
+
+        // Load the tasks and create a tree item for each
+        // Register the gulptasks.select command to track the selected task and it command line call
         loader.tasks().then(tasks => {
           const items = tasks.map(task => new TaskItem(task, vscode.TreeItemCollapsibleState.None, {
             title: '',
