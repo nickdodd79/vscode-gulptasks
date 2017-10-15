@@ -37,12 +37,17 @@
 				{
 					"command": "gulptasks.execute",
 					"when": "view == gulptasks",
-					"group": "navigation"
+					"group": "navigation@1"
+        },
+        {
+					"command": "gulptasks.terminate",
+					"when": "view == gulptasks",
+					"group": "navigation@2"
 				},
 				{
 					"command": "gulptasks.refresh",
 					"when": "view == gulptasks",
-					"group": "navigation"
+					"group": "navigation@3"
 				}
 			]
 		},
@@ -53,6 +58,14 @@
 				"icon": {
 					"light": "resources/light/execute.svg",
 					"dark": "resources/dark/execute.svg"
+				}
+      },
+      {
+				"command": "gulptasks.terminate",
+				"title": "Terminate Task",
+				"icon": {
+					"light": "resources/light/terminate.svg",
+					"dark": "resources/dark/terminate.svg"
 				}
 			},
 			{

@@ -1,8 +1,30 @@
 'use strict';
 
+import * as fs from 'fs';
 import * as path from 'path';
+import * as cp from 'child_process';
 import * as vscode from 'vscode';
 import * as utils from './utils';
+
+function exists(file: string): Promise<boolean> {
+  return new Promise<boolean>((resolve, _reject) => {
+    fs.exists(file, value => {
+      resolve(value);
+    });
+  });
+}
+
+function exec(command: string, options: cp.ExecOptions): Promise<{ stdout: string; stderr: string }> {
+  return new Promise<{ stdout: string; stderr: string }>((resolve, reject) => {
+    cp.exec(command, options, (error, stdout, stderr) => {
+      if (error) {
+        reject({ error, stdout, stderr });
+      }
+
+      resolve({ stdout, stderr });
+    });
+  });
+}
 
 export async function tasks(): Promise<string[]> {
   const emptyTasks: string[] = [];
@@ -15,7 +37,7 @@ export async function tasks(): Promise<string[]> {
 
   // Check gulp can be run
   try {
-    await utils.exec('gulp -v', { cwd: workspaceRoot });
+    await exec('gulp -v', { cwd: workspaceRoot });
   } catch (err) {
     utils.showError('Unable to find an install of gulp. Try running \'npm i -g gulp\'.');
     return emptyTasks;
@@ -24,7 +46,7 @@ export async function tasks(): Promise<string[]> {
   // Verify a gulp file exists
   const file = path.join(workspaceRoot, 'gulpfile.js');
 
-  if (!await utils.exists(file)) {
+  if (!await exists(file)) {
     utils.outputInfo('No gulp file found in the current workspace.');
     return emptyTasks;
   }
@@ -33,7 +55,7 @@ export async function tasks(): Promise<string[]> {
   utils.outputInfo('Loading gulp tasks ...');
 
   try {
-    const output = await utils.exec('gulp --tasks-simple', { cwd: workspaceRoot });
+    const output = await exec('gulp --tasks-simple', { cwd: workspaceRoot });
 
     if (output.stderr) {
       utils.showError(output.stderr);
@@ -59,10 +81,6 @@ export async function tasks(): Promise<string[]> {
   } catch (err) {
     if (err.stderr) {
       utils.showError(err.stderr);
-    }
-
-    if (err.stdout) {
-      utils.showError(err.stdout);
     }
   }
 

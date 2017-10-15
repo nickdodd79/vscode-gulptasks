@@ -1,11 +1,11 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import * as executer from './tasks-executer';
+import * as process from './tasks-process';
 
 import { TasksProvider } from './tasks-provider';
 
-let _task: string;
+let _task: string | undefined;
 
 function registerCommand(context: vscode.ExtensionContext, command: string, callback: (...args: any[]) => any): void {
   const registration = vscode.commands.registerCommand(command, callback);
@@ -14,12 +14,19 @@ function registerCommand(context: vscode.ExtensionContext, command: string, call
 
 export function activate(context: vscode.ExtensionContext): void {
   const workspaceRoot = vscode.workspace.rootPath;
-  const tasksProvider = new TasksProvider(workspaceRoot);
-  const registration = vscode.window.registerTreeDataProvider('gulptasks', tasksProvider);
+  const provider = new TasksProvider(workspaceRoot);
+  const registration = vscode.window.registerTreeDataProvider('gulptasks', provider);
 
   registerCommand(context, 'gulptasks.select', task => _task = task);
-  registerCommand(context, 'gulptasks.execute', () => executer.executeTask(_task, workspaceRoot));
-  registerCommand(context, 'gulptasks.refresh', () => tasksProvider.refresh());
+  registerCommand(context, 'gulptasks.execute', () => process.execute(_task, workspaceRoot));
+  registerCommand(context, 'gulptasks.terminate', () => process.terminate(_task));
+
+  registerCommand(context, 'gulptasks.refresh', () => {
+    provider.refresh();
+
+    // Clear the selected task - prevent execution without an tree item being selected
+    _task = undefined;
+  });
 
   context.subscriptions.push(registration);
 }
