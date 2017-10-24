@@ -9,21 +9,30 @@ function sanitize(value: string): string {
   return lines.join('');
 }
 
-function output(type: string, value: string): void {
+function output(message: string, type?: string): void {
   if (!_channel) {
     _channel = vscode.window.createOutputChannel('Gulp Tasks');
   }
 
-  _channel.appendLine(`[Gulp Tasks - ${type}] ${value}`);
+  if (type) {
+    _channel.appendLine(`[${type}] ${message}`);
+  } else {
+    _channel.appendLine(message);
+  }
+
   _channel.show(true);
 }
 
+export function outputLog(message: string): void {
+  output('> ' + message);
+}
+
 export function outputInfo(message: string): void {
-  output('Info', message);
+  output(message, 'Info');
 }
 
 export function outputError(message: string): void {
-  output('Error', message);
+  output(message, 'Error');
 }
 
 export function showInfo(message: string, output?: string): void {

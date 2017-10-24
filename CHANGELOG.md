@@ -1,3 +1,7 @@
+## 0.0.4
+- Added gulp messages to output window
+- Updated discovery of gulpfile.js to include workspace child folders
+
 ## 0.0.3
 - Added better displaying of process output messages
 - Added support to terminate long running tasks (i.e. gulp.watch)

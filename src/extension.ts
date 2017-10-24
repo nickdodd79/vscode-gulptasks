@@ -5,7 +5,7 @@ import * as process from './tasks-process';
 
 import { TasksProvider } from './tasks-provider';
 
-let _task: string | undefined;
+let _task: process.TaskContext | undefined;
 
 function registerCommand(context: vscode.ExtensionContext, command: string, callback: (...args: any[]) => any): void {
   const registration = vscode.commands.registerCommand(command, callback);
@@ -18,7 +18,7 @@ export function activate(context: vscode.ExtensionContext): void {
   const registration = vscode.window.registerTreeDataProvider('gulptasks', provider);
 
   registerCommand(context, 'gulptasks.select', task => _task = task);
-  registerCommand(context, 'gulptasks.execute', () => process.execute(_task, workspaceRoot));
+  registerCommand(context, 'gulptasks.execute', () => process.execute(_task));
   registerCommand(context, 'gulptasks.terminate', () => process.terminate(_task));
 
   registerCommand(context, 'gulptasks.refresh', () => {

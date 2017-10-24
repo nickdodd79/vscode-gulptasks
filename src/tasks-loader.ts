@@ -1,16 +1,40 @@
 'use strict';
 
-import * as fs from 'fs';
 import * as path from 'path';
+import * as filehound from 'filehound';
 import * as cp from 'child_process';
 import * as vscode from 'vscode';
 import * as utils from './utils';
 
-function exists(file: string): Promise<boolean> {
-  return new Promise<boolean>((resolve, _reject) => {
-    fs.exists(file, value => {
-      resolve(value);
+export interface TasksResult {
+  readonly tasks: string[];
+  readonly workingDirectory: string | undefined;
+}
+
+function find(workspaceRoot: string): Promise<string | undefined> {
+  return new Promise<string | undefined>((resolve, reject) => {
+    const paths = [];
+    const finder = filehound.create()
+      .paths(workspaceRoot)
+      .match('gulpfile.js');
+
+    // Need to ignore any gulpfile.js instances in node_modules
+    // Are there more to ignore??
+    finder.on('match', file => {
+      if (file.indexOf('node_modules') === -1) {
+        paths.push(file);
+      }
     });
+
+    finder.on('end', file => {
+      if (paths.length > 0) {
+        resolve(paths[0]);
+      } else {
+        resolve();
+      }
+    });
+
+    finder.find();
   });
 }
 
@@ -26,36 +50,45 @@ function exec(command: string, options: cp.ExecOptions): Promise<{ stdout: strin
   });
 }
 
-export async function tasks(): Promise<string[]> {
-  const emptyTasks: string[] = [];
+export async function tasks(): Promise<TasksResult> {
   const workspaceRoot = vscode.workspace.rootPath;
+  const emptyResult: TasksResult = {
+    tasks: [],
+    workingDirectory: undefined
+  };
 
   // Verify the workspace root
   if (!workspaceRoot) {
-    return emptyTasks;
+    return emptyResult;
   }
 
-  // Check gulp can be run
-  try {
-    await exec('gulp -v', { cwd: workspaceRoot });
-  } catch (err) {
-    utils.showError('Unable to find an install of gulp. Try running \'npm i -g gulp\'.');
-    return emptyTasks;
-  }
+  utils.outputInfo(`Discovering gulp file ...`);
 
   // Verify a gulp file exists
-  const file = path.join(workspaceRoot, 'gulpfile.js');
+  const file = await find(workspaceRoot);
 
-  if (!await exists(file)) {
+  if (!file) {
     utils.outputInfo('No gulp file found in the current workspace.');
-    return emptyTasks;
+    return emptyResult;
+  }
+
+  utils.outputInfo(`Discovered: ${file}`);
+
+  // Check gulp can be run
+  const workingDirectory = path.dirname(file);
+
+  try {
+    await exec('gulp -v', { cwd: workingDirectory });
+  } catch (err) {
+    utils.showError('Unable to find an install of gulp. Try running \'npm i -g gulp\'.');
+    return emptyResult;
   }
 
   // Run the loader command to get a list of the gulp tasks
   utils.outputInfo('Loading gulp tasks ...');
 
   try {
-    const output = await exec('gulp --tasks-simple', { cwd: workspaceRoot });
+    const output = await exec('gulp --tasks-simple', { cwd: workingDirectory });
 
     if (output.stderr) {
       utils.showError(output.stderr);
@@ -76,7 +109,7 @@ export async function tasks(): Promise<string[]> {
 
       utils.outputInfo(`Loaded ${tasks.length} gulp tasks.`);
 
-      return tasks;
+      return { tasks, workingDirectory };
     }
   } catch (err) {
     if (err.stderr) {
@@ -84,5 +117,5 @@ export async function tasks(): Promise<string[]> {
     }
   }
 
-  return emptyTasks;
+  return emptyResult;
 }

@@ -2,7 +2,7 @@
 	"name": "gulptasks",
 	"displayName": "Gulp Tasks",
 	"description": "A gulp task visualization and execution extension for Visual Studio Code",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"author": {
 		"name": "Nick Dodd"
 	},
@@ -38,8 +38,8 @@
 					"command": "gulptasks.execute",
 					"when": "view == gulptasks",
 					"group": "navigation@1"
-        },
-        {
+				},
+				{
 					"command": "gulptasks.terminate",
 					"when": "view == gulptasks",
 					"group": "navigation@2"
@@ -59,8 +59,8 @@
 					"light": "resources/light/execute.svg",
 					"dark": "resources/dark/execute.svg"
 				}
-      },
-      {
+			},
+			{
 				"command": "gulptasks.terminate",
 				"title": "Terminate Task",
 				"icon": {
@@ -86,9 +86,10 @@
 		"test": "npm run compile && node ./node_modules/vscode/bin/test"
 	},
 	"devDependencies": {
-		"typescript": "^2.5.3",
-		"vscode": "^1.1.5",
+		"@types/mocha": "^2.2.42",
 		"@types/node": "^7.0.43",
-		"@types/mocha": "^2.2.42"
+		"filehound": "^1.16.2",
+		"typescript": "^2.5.3",
+		"vscode": "^1.1.5"
 	}
 }

@@ -44,11 +44,16 @@ export class TasksProvider implements vscode.TreeDataProvider<TaskItem> {
 
         // Load the tasks and create a tree item for each
         // Register the gulptasks.select command to track the selected task and it command line call
-        loader.tasks().then(tasks => {
-          const items = tasks.map(task => new TaskItem(task, vscode.TreeItemCollapsibleState.None, {
+        loader.tasks().then(result => {
+          const items = result.tasks.map(task => new TaskItem(task, vscode.TreeItemCollapsibleState.None, {
             title: '',
             command: `gulptasks.select`,
-            arguments: [`gulp ${task}`]
+            arguments: [
+              {
+                command: `gulp ${task}`,
+                workingDirectory: result.workingDirectory
+              }
+            ]
           }));
 
           resolve(items);
