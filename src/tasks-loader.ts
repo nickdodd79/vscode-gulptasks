@@ -1,5 +1,6 @@
 'use strict';
 
+import * as fs from 'fs';
 import * as path from 'path';
 import * as filehound from 'filehound';
 import * as cp from 'child_process';
@@ -11,17 +12,44 @@ export interface TasksResult {
   readonly workingDirectory: string | undefined;
 }
 
-function find(workspaceRoot: string): Promise<string | undefined> {
+function findRoot(workspaceRoot: string): Promise<string | undefined> {
+  const file = path.join(workspaceRoot, 'gulpfile.js');
+
+  return new Promise<string | undefined>(resolve => {
+    fs.exists(file, value => {
+      resolve(value ? file : undefined);
+    });
+  });
+}
+
+async function find(workspaceRoot: string): Promise<string | undefined> {
+
+  // First lets check the workspace root
+  const file = await findRoot(workspaceRoot);
+
+  if (file) {
+    return Promise.resolve(file);
+  }
+
+  // Otherwise traverse the sub folders to discover any others
   return new Promise<string | undefined>((resolve, reject) => {
     const paths = [];
     const finder = filehound.create()
       .paths(workspaceRoot)
       .match('gulpfile.js');
 
-    // Need to ignore any gulpfile.js instances in node_modules
-    // Are there more to ignore??
+    // Need to ignore any gulpfile.js instances in dependency paths (node, bower)
+    const excludes: string[] = [
+      'node_modules',
+      'bower_components'
+    ];
+
     finder.on('match', file => {
-      if (file.indexOf('node_modules') === -1) {
+      const match = excludes.find(exclude => {
+        return file.indexOf(exclude) > -1;
+      });
+
+      if (!match) {
         paths.push(file);
       }
     });
