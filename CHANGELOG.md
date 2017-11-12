@@ -1,3 +1,7 @@
+## 0.0.6
+- Added exclusion for discovery in 'bower_components' folder.
+- Improved discovery efficiency by returning immediately if a gulpfile.js is found in the workspace root.
+
 ## 0.0.5
 - Another publish after last was a disaster....apologies for any issues, seems my noob status got in the way.
 
