@@ -1,3 +1,7 @@
+## 0.0.7
+- Added configuration to specify discovery directory.
+- Added configuration to exclude directories during discovery (e.g. node_modules).
+
 ## 0.0.6
 - Added exclusion for discovery in 'bower_components' folder.
 - Improved discovery efficiency by returning immediately if a gulpfile.js is found in the workspace root.

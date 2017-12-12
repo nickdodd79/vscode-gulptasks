@@ -2,7 +2,7 @@
 	"name": "gulptasks",
 	"displayName": "Gulp Tasks",
 	"description": "A gulp task visualization and execution extension for Visual Studio Code",
-	"version": "0.0.6",
+	"version": "0.0.7",
 	"author": {
 		"name": "Nick Dodd"
 	},
@@ -24,6 +24,24 @@
 	],
 	"main": "./out/extension",
 	"contributes": {
+		"configuration": {
+			"title": "Gulp Tasks configuration",
+			"properties": {
+        "gulptasks.discovery.dir": {
+					"type": "string",
+					"default": "",
+					"description": "Specifies a directory where the gulpfile.js should be discovered."
+				},
+        "gulptasks.discovery.dirExclusions": {
+					"type": "array",
+					"default": [
+						"node_modules/**",
+						"bower_components/**"
+					],
+					"description": "Specifies glob patterns used to exclude directories from discovery. Use '*' to exclude the root gulpfile.js."
+				}
+			}
+		},
 		"views": {
 			"explorer": [
 				{
@@ -84,11 +102,13 @@
 		"watch": "tsc -watch -p ./",
 		"postinstall": "node ./node_modules/vscode/bin/install",
 		"test": "npm run compile && node ./node_modules/vscode/bin/test"
-  },
-  "dependencies": {
-		"filehound": "^1.16.2"
-  },
+	},
+	"dependencies": {
+		"filehound": "^1.16.2",
+		"minimatch": "^3.0.4"
+	},
 	"devDependencies": {
+		"@types/minimatch": "^3.0.1",
 		"@types/mocha": "^2.2.42",
 		"@types/node": "^7.0.43",
 		"typescript": "^2.5.3",
