@@ -1,3 +1,6 @@
+## 0.0.8
+- Added wildcard discovery for gulpfile.js (e.g. gulpfile.babel.js).
+
 ## 0.0.7
 - Added configuration to specify discovery directory.
 - Added configuration to exclude directories during discovery (e.g. node_modules).

@@ -45,7 +45,7 @@ function resolvePath(contexts: DiscoveryContext[], exclusions: string[]): string
     exclusions.forEach(exclude => {
 
       // Check which paths match the current context
-      const pattern = sanitizePath(`${exclude}/gulpfile.js`);
+      const pattern = sanitizePath(`${exclude}/gulpfile*.js`);
       const relatives = contexts.map(context => context.relative);
       const matches = minimatch.match(relatives, pattern);
 
@@ -77,12 +77,15 @@ function pathExists(path: string): Promise<boolean> {
 }
 
 function findRoot(root: string): Promise<string | undefined> {
-  const file = io.join(root, 'gulpfile.js');
-
   return new Promise<string | undefined>(resolve => {
-    pathExists(file).then(exists => {
-      resolve(exists ? file : undefined);
-    });
+    const files = filehound.create()
+      .path(root)
+      .match('gulpfile*')
+      .ext('js')
+      .depth(0)
+      .findSync();
+
+    resolve(files.length > 0 ? files[0] : undefined);
   });
 }
 
@@ -104,31 +107,32 @@ async function find(root: string, config: Config): Promise<string | undefined> {
     const contexts: DiscoveryContext[] = [];
     const finder = filehound.create()
       .paths(root)
-      .match('gulpfile.js');
+      .match('gulpfile*')
+      .ext('js');
 
-    finder.on('match', (file: string) => {
-      let relative = file.substring(root.length);
-      relative = sanitizePath(relative);
+      finder.on('match', (file: string) => {
+        let relative = file.substring(root.length);
+        relative = sanitizePath(relative);
 
-      if (relative !== 'gulpfile.js') {
-        contexts.push({
-          absolute: file,
-          relative: relative
-        });
-      }
-    });
+        if (!minimatch(relative, 'gulpfile*.js')) {
+          contexts.push({
+            absolute: file,
+            relative: relative
+          });
+        }
+      });
 
-    finder.on('end', file => {
-      const path = resolvePath(contexts, exclusions);
+      finder.on('end', file => {
+        const path = resolvePath(contexts, exclusions);
 
-      if (path) {
-        resolve(path);
-      } else {
-        resolve();
-      }
-    });
+        if (path) {
+          resolve(path);
+        } else {
+          resolve();
+        }
+      });
 
-    finder.find();
+      finder.find();
   });
 }
 
