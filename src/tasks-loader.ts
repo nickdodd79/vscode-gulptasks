@@ -9,6 +9,7 @@ import * as vscode from 'vscode';
 import * as utils from './utils';
 
 interface Config {
+  file: string;
   discovery: {
     dir: string;
     dirExclusions: string[];
@@ -161,22 +162,39 @@ export async function tasks(): Promise<TasksResult> {
     return emptyResult;
   }
 
+  // Check if a specific file is configured
+  let file: string = null;
+
+  if (config.file !== "") {
+    file = config.file;
+
+    if (!io.isAbsolute(config.file)) {
+      file = io.join(workspaceRoot, file);
+    }
+
+    if (!await pathExists(file)) {
+      file = null;
+    }
+  }
+
   // Resolve the discovery directory
-  let root = workspaceRoot;
-  let dir = config.discovery.dir;
+  if (!file) {
+    let root = workspaceRoot;
+    let dir = config.discovery.dir;
 
-  if (dir && !io.isAbsolute(dir)) {
-    dir = io.join(workspaceRoot, dir);
+    if (dir && !io.isAbsolute(dir)) {
+      dir = io.join(workspaceRoot, dir);
+    }
+
+    if (await pathExists(dir)) {
+      root = dir;
+    }
+
+    utils.outputInfo(`Discovering gulp file ...`);
+
+    // Verify a gulp file exists
+    file = await find(root, config);
   }
-
-  if (await pathExists(dir)) {
-    root = dir;
-  }
-
-  utils.outputInfo(`Discovering gulp file ...`);
-
-  // Verify a gulp file exists
-  const file = await find(root, config);
 
   if (!file) {
     utils.outputInfo('No gulp file found in the current workspace.');

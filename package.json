@@ -2,7 +2,7 @@
 	"name": "gulptasks",
 	"displayName": "Gulp Tasks",
 	"description": "A gulp task visualization and execution extension for Visual Studio Code",
-	"version": "0.0.8",
+	"version": "0.0.9",
 	"author": {
 		"name": "Nick Dodd"
 	},
@@ -27,6 +27,11 @@
 		"configuration": {
 			"title": "Gulp Tasks configuration",
 			"properties": {
+        "gulptasks.file": {
+          "type": "string",
+					"default": "",
+					"description": "Specifies an extact gulp file to load. If the files doesn't exist, the discovery process resumes."
+        },
         "gulptasks.discovery.dir": {
 					"type": "string",
 					"default": "",

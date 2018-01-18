@@ -1,3 +1,6 @@
+## 0.0.9
+- Added a config option to specify an exact gulp file to load.
+
 ## 0.0.8
 - Added wildcard discovery for gulpfile.js (e.g. gulpfile.babel.js).
 
