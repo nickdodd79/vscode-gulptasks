@@ -241,9 +241,7 @@ export async function tasks(): Promise<TasksResult> {
       return { tasks, workingDirectory };
     }
   } catch (err) {
-    if (err.stderr) {
-      utils.showError(err.stderr);
-    }
+    utils.showError('Failed to load gulp tasks. This could be because a local install of gulp is required.');
   }
 
   return emptyResult;
