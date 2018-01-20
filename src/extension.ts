@@ -20,6 +20,7 @@ export function activate(context: vscode.ExtensionContext): void {
   registerCommand(context, 'gulptasks.select', task => _task = task);
   registerCommand(context, 'gulptasks.execute', () => process.execute(_task));
   registerCommand(context, 'gulptasks.terminate', () => process.terminate(_task));
+  registerCommand(context, 'gulptasks.restart', () => process.restart(_task));
 
   registerCommand(context, 'gulptasks.refresh', () => {
     provider.refresh();

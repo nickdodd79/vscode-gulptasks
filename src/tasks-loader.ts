@@ -141,7 +141,7 @@ function exec(command: string, options: cp.ExecOptions): Promise<{ stdout: strin
   return new Promise<{ stdout: string; stderr: string }>((resolve, reject) => {
     cp.exec(command, options, (error, stdout, stderr) => {
       if (error) {
-        reject({ error, stdout, stderr });
+        reject({ stdout, stderr });
       }
 
       resolve({ stdout, stderr });
@@ -205,9 +205,14 @@ export async function tasks(): Promise<TasksResult> {
 
   // Check gulp can be run
   const workingDirectory = io.dirname(file);
+  const fileName = io.basename(file);
+
+  if (fileName === 'gulp.js') {
+    utils.outputWarning('Naming your gulp file \'gulp.js\' can result in errors.');
+  }
 
   try {
-    await exec('gulp -v', { cwd: workingDirectory });
+    await exec('gulp --version --gulpfile "' + fileName + '"', { cwd: workingDirectory });
   } catch (err) {
     utils.showError('Unable to find an install of gulp. Try running \'npm i -g gulp\'.');
     return emptyResult;
@@ -217,7 +222,7 @@ export async function tasks(): Promise<TasksResult> {
   utils.outputInfo('Loading gulp tasks ...');
 
   try {
-    const output = await exec('gulp --tasks-simple', { cwd: workingDirectory });
+    const output = await exec('gulp --tasks-simple --gulpfile "' + fileName + '"', { cwd: workingDirectory });
 
     if (output.stderr) {
       utils.showError(output.stderr);
@@ -241,7 +246,11 @@ export async function tasks(): Promise<TasksResult> {
       return { tasks, workingDirectory };
     }
   } catch (err) {
-    utils.showError('Failed to load gulp tasks. This could be because a local install of gulp is required.');
+    if (err.stderr) {
+      utils.showError(err.stderr);
+    } else {
+      utils.showError('Failed to load gulp tasks. This could be because you need to locally install gulp by running \'npm i gulp\'.');
+    }
   }
 
   return emptyResult;

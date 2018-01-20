@@ -31,6 +31,10 @@ export function outputInfo(message: string): void {
   output(message, 'Info');
 }
 
+export function outputWarning(message: string): void {
+  output(message, 'Warning');
+}
+
 export function outputError(message: string): void {
   output(message, 'Error');
 }

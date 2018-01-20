@@ -1,6 +1,8 @@
 ## 0.0.9
 - Added a config option to specify an exact gulp file to load.
 - Added output message when loading of gulp tasks fails.
+- Added restart button to start/stop long running tasks in one action.
+- Refined navigation icons.
 
 ## 0.0.8
 - Added wildcard discovery for gulpfile.js (e.g. gulpfile.babel.js).

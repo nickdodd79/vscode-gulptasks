@@ -61,16 +61,21 @@
 					"command": "gulptasks.execute",
 					"when": "view == gulptasks",
 					"group": "navigation@1"
-				},
+        },
 				{
 					"command": "gulptasks.terminate",
 					"when": "view == gulptasks",
 					"group": "navigation@2"
 				},
+        {
+					"command": "gulptasks.restart",
+					"when": "view == gulptasks",
+					"group": "navigation@3"
+				},
 				{
 					"command": "gulptasks.refresh",
 					"when": "view == gulptasks",
-					"group": "navigation@3"
+					"group": "navigation@4"
 				}
 			]
 		},
@@ -82,13 +87,21 @@
 					"light": "resources/light/execute.svg",
 					"dark": "resources/dark/execute.svg"
 				}
-			},
+      },
 			{
 				"command": "gulptasks.terminate",
 				"title": "Terminate Task",
 				"icon": {
 					"light": "resources/light/terminate.svg",
 					"dark": "resources/dark/terminate.svg"
+				}
+			},
+      {
+				"command": "gulptasks.restart",
+				"title": "Restart Task",
+				"icon": {
+					"light": "resources/light/restart.svg",
+					"dark": "resources/dark/restart.svg"
 				}
 			},
 			{
