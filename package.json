@@ -2,7 +2,7 @@
 	"name": "gulptasks",
 	"displayName": "Gulp Tasks",
 	"description": "A gulp task visualization and execution extension for Visual Studio Code",
-	"version": "0.0.9",
+	"version": "0.0.10",
 	"author": {
 		"name": "Nick Dodd"
 	},

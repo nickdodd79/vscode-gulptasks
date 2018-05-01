@@ -1,3 +1,6 @@
+## 0.0.10
+- Changed file searching to be case insensitive.
+
 ## 0.0.9
 - Added a config option to specify an exact gulp file to load.
 - Added output message when loading of gulp tasks fails.

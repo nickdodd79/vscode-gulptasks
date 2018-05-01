@@ -48,7 +48,9 @@ function resolvePath(contexts: DiscoveryContext[], exclusions: string[]): string
       // Check which paths match the current context
       const pattern = sanitizePath(`${exclude}/gulpfile*.js`);
       const relatives = contexts.map(context => context.relative);
-      const matches = minimatch.match(relatives, pattern);
+      const matches = minimatch.match(relatives, pattern, {
+        nocase: true
+      });
 
       matches.forEach(match => excludes.push(match));
     });
@@ -81,12 +83,21 @@ function findRoot(root: string): Promise<string | undefined> {
   return new Promise<string | undefined>(resolve => {
     const files = filehound.create()
       .path(root)
-      .match('gulpfile*')
-      .ext('js')
+      .addFilter(filterFiles)
       .depth(0)
       .findSync();
 
     resolve(files.length > 0 ? files[0] : undefined);
+  });
+}
+
+function filterFiles(file: any): any {
+  return fileMatches(file._pathname, '**/gulpfile*.js');
+}
+
+function fileMatches(file: string, pattern: string): boolean {
+  return minimatch(file, pattern, {
+    nocase: true
   });
 }
 
@@ -108,14 +119,14 @@ async function find(root: string, config: Config): Promise<string | undefined> {
     const contexts: DiscoveryContext[] = [];
     const finder = filehound.create()
       .paths(root)
-      .match('gulpfile*')
-      .ext('js');
+      .addFilter(filterFiles);
 
       finder.on('match', (file: string) => {
         let relative = file.substring(root.length);
         relative = sanitizePath(relative);
 
-        if (!minimatch(relative, 'gulpfile*.js')) {
+        // Exclude the root gulpfile - a discover was attempted beforehand
+        if (!fileMatches(relative, 'gulpfile*.js')) {
           contexts.push({
             absolute: file,
             relative: relative
