@@ -27,17 +27,17 @@
 		"configuration": {
 			"title": "Gulp Tasks configuration",
 			"properties": {
-        "gulptasks.file": {
-          "type": "string",
+				"gulptasks.file": {
+					"type": "string",
 					"default": "",
 					"description": "Specifies an extact gulp file to load. If the files doesn't exist, the discovery process resumes."
-        },
-        "gulptasks.discovery.dir": {
+				},
+				"gulptasks.discovery.dir": {
 					"type": "string",
 					"default": "",
 					"description": "Specifies a directory where the gulpfile.js should be discovered."
 				},
-        "gulptasks.discovery.dirExclusions": {
+				"gulptasks.discovery.dirExclusions": {
 					"type": "array",
 					"default": [
 						"node_modules/**",
@@ -61,13 +61,13 @@
 					"command": "gulptasks.execute",
 					"when": "view == gulptasks",
 					"group": "navigation@1"
-        },
+				},
 				{
 					"command": "gulptasks.terminate",
 					"when": "view == gulptasks",
 					"group": "navigation@2"
 				},
-        {
+				{
 					"command": "gulptasks.restart",
 					"when": "view == gulptasks",
 					"group": "navigation@3"
@@ -87,7 +87,7 @@
 					"light": "resources/light/execute.svg",
 					"dark": "resources/dark/execute.svg"
 				}
-      },
+			},
 			{
 				"command": "gulptasks.terminate",
 				"title": "Terminate Task",
@@ -96,7 +96,7 @@
 					"dark": "resources/dark/terminate.svg"
 				}
 			},
-      {
+			{
 				"command": "gulptasks.restart",
 				"title": "Restart Task",
 				"icon": {
