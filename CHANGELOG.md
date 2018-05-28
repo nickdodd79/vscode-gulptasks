@@ -1,3 +1,6 @@
+## 0.0.12
+- Updated readme to remove global gulp install comment (no code changes).
+
 ## 0.0.11
 - Changed gulp install discovery to include project 'node_modules/.bin' path.
 
