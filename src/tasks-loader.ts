@@ -22,6 +22,7 @@ interface DiscoveryContext {
 }
 
 export interface TasksResult {
+  readonly gulp: string;
   readonly tasks: string[];
   readonly workingDirectory: string | undefined;
 }
@@ -160,10 +161,23 @@ function exec(command: string, options: cp.ExecOptions): Promise<{ stdout: strin
   });
 }
 
+async function checkGulp(path: string, fileName: string, workingDirectory: string): Promise<string> {
+  const command = path ? io.join(path, 'gulp') : 'gulp';
+
+  try {
+    await exec(`${command} --version --gulpfile "${fileName}"`, { cwd: workingDirectory });
+  } catch {
+    return undefined;
+  }
+
+  return command;
+}
+
 export async function tasks(): Promise<TasksResult> {
   const workspaceRoot = vscode.workspace.rootPath;
   const config = vscode.workspace.getConfiguration().get<Config>('gulptasks');
   const emptyResult: TasksResult = {
+    gulp: undefined,
     tasks: [],
     workingDirectory: undefined
   };
@@ -215,25 +229,36 @@ export async function tasks(): Promise<TasksResult> {
   utils.outputInfo(`Discovered: ${file}`);
 
   // Check gulp can be run
-  const workingDirectory = io.dirname(file);
   const fileName = io.basename(file);
 
   if (fileName === 'gulp.js') {
     utils.outputWarning('Naming your gulp file \'gulp.js\' can result in errors.');
   }
 
-  try {
-    await exec('gulp --version --gulpfile "' + fileName + '"', { cwd: workingDirectory });
-  } catch (err) {
-    utils.showError('Unable to find an install of gulp. Try running \'npm i -g gulp\'.');
-    return emptyResult;
+  let gulp = await checkGulp(undefined, fileName, workspaceRoot);
+
+  if (!gulp) {
+    const local = io.join(workspaceRoot, 'node_modules/.bin');
+
+    gulp = await checkGulp(local, fileName, workspaceRoot);
+
+    if (!gulp) {
+      utils.showError('Unable to find an install of gulp.');
+      return emptyResult;
+    } else {
+      utils.outputInfo(`Using project gulp install ...`);
+    }
+  } else {
+    utils.outputInfo(`Using global gulp install ...`);
   }
 
   // Run the loader command to get a list of the gulp tasks
+  const workingDirectory = io.dirname(file);
+
   utils.outputInfo('Loading gulp tasks ...');
 
   try {
-    const output = await exec('gulp --tasks-simple --gulpfile "' + fileName + '"', { cwd: workingDirectory });
+    const output = await exec(`${gulp} --tasks-simple --gulpfile "${fileName}"`, { cwd: workingDirectory });
 
     if (output.stderr) {
       utils.showError(output.stderr);
@@ -254,13 +279,17 @@ export async function tasks(): Promise<TasksResult> {
 
       utils.outputInfo(`Loaded ${tasks.length} gulp tasks.`);
 
-      return { tasks, workingDirectory };
+      return {
+        gulp: gulp,
+        tasks: tasks,
+        workingDirectory: workingDirectory
+      };
     }
   } catch (err) {
     if (err.stderr) {
       utils.showError(err.stderr);
     } else {
-      utils.showError('Failed to load gulp tasks. This could be because you need to locally install gulp by running \'npm i gulp\'.');
+      utils.showError('Failed to load gulp tasks. This could be because you need to locally install gulp by running \'npm i gulp --save-dev\'.');
     }
   }
 

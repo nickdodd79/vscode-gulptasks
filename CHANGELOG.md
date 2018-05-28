@@ -1,3 +1,6 @@
+## 0.0.11
+- Changed gulp install discovery to include project 'node_modules/.bin' path.
+
 ## 0.0.10
 - Changed file searching to be case insensitive.
 

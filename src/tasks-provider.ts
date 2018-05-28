@@ -50,7 +50,8 @@ export class TasksProvider implements vscode.TreeDataProvider<TaskItem> {
             command: `gulptasks.select`,
             arguments: [
               {
-                command: `gulp ${task}`,
+                gulp: result.gulp,
+                task: task,
                 workingDirectory: result.workingDirectory
               }
             ]
