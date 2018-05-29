@@ -8,14 +8,6 @@ import * as cp from 'child_process';
 import * as vscode from 'vscode';
 import * as utils from './utils';
 
-interface Config {
-  file: string;
-  discovery: {
-    dir: string;
-    dirExclusions: string[];
-  }
-}
-
 interface DiscoveryContext {
   absolute: string;
   relative: string;
@@ -102,7 +94,7 @@ function fileMatches(file: string, pattern: string): boolean {
   });
 }
 
-async function find(root: string, config: Config): Promise<string | undefined> {
+async function find(root: string, config: utils.Config): Promise<string | undefined> {
 
   // First check the workspace root
   if (config.discovery.dirExclusions.indexOf('*') === -1) {
@@ -174,8 +166,8 @@ async function checkGulp(path: string, fileName: string, workingDirectory: strin
 }
 
 export async function tasks(): Promise<TasksResult> {
+  const config = utils.config();
   const workspaceRoot = vscode.workspace.rootPath;
-  const config = vscode.workspace.getConfiguration().get<Config>('gulptasks');
   const emptyResult: TasksResult = {
     gulp: undefined,
     tasks: [],

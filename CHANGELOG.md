@@ -1,3 +1,6 @@
+## 0.0.13
+- Added terminal execution and 'runInTerminal' setting (defaults to false).
+
 ## 0.0.12
 - Updated readme to remove global gulp install comment (no code changes).
 

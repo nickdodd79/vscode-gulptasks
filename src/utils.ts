@@ -4,6 +4,15 @@ import * as vscode from 'vscode';
 
 let _channel: vscode.OutputChannel;
 
+export interface Config {
+  file: string;
+  runInTerminal: boolean;
+  discovery: {
+    dir: string;
+    dirExclusions: string[];
+  }
+}
+
 function sanitize(value: string): string {
   const lines = value.split(/\r{0,1}\n/);
   return lines.join('');
@@ -21,6 +30,10 @@ function output(message: string, type?: string): void {
   }
 
   _channel.show(true);
+}
+
+export function config(): Config {
+  return vscode.workspace.getConfiguration().get<Config>('gulptasks');
 }
 
 export function outputLog(message: string): void {

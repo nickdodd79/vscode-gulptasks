@@ -1,5 +1,7 @@
 'use strict';
 
+import { Terminal, window, workspace } from 'vscode';
+
 import * as cp from 'child_process';
 import * as utils from './utils';
 
@@ -9,32 +11,78 @@ export interface TaskContext {
   workingDirectory: string;
 }
 
+let _terminal: Terminal = undefined;
 const _cache: { [id: string]: cp.ChildProcess } = {};
 
 async function executeProcess(context: TaskContext): Promise<void> {
-  const process = cp.exec(`${context.gulp} ${context.task}`, { cwd: context.workingDirectory }, (error, stdout, stderr) => {
-    if (stderr) {
-      utils.showError(stderr);
-    } else {
+  let command = `${context.gulp} ${context.task}`;
 
-      // Output the gulp process messages
-      const lines = stdout.split(/\r{0,1}\n/);
+  // If enable run the command in a terminal
+  const config = utils.config();
 
-      for (const line of lines) {
-        if (line.length > 0) {
-          utils.outputLog(line);
-        }
-      }
+  if (config.runInTerminal && typeof window.createTerminal === 'function') {
 
-      utils.showInfo(`The execution of '${context.task}' completed successfully.`, `Executed '${context.task}'.`);
+    // Convert the gulp path to relative
+    let count = 0;
 
-      // Clear the cached process - it has completed and so cannot be terminated
-      _cache[context.task] = undefined;
+    if (context.workingDirectory !== workspace.rootPath) {
+      const workingDirectory = context.workingDirectory.substr(workspace.rootPath.length + 1);
+      const segments = workingDirectory.split('\\');
+
+      count = segments.length;
     }
-  });
 
-  // Cache the process for termination
-  _cache[context.task] = process;
+    command = command.substr(workspace.rootPath.length + 1);
+
+    for (var index = 0; index < count; index++) {
+      command = `..\\${command}`;
+    }
+
+    // Run the task in a terminal
+    if (!_terminal) {
+      _terminal = window.createTerminal('Gulp Tasks');
+    }
+
+    _terminal.show(true);
+
+    _terminal.sendText(`cd ${context.workingDirectory}`);
+    _terminal.sendText(command);
+
+    utils.showInfo(`The execution of '${context.task}' completed successfully.`, `Executed '${context.task}'.`);
+
+  } else {
+
+    // Ensure any existing terminals are disposed
+    if (_terminal) {
+      _terminal.dispose();
+      _terminal = undefined;
+    }
+
+    // Run the command and use the output
+    const process = cp.exec(command, { cwd: context.workingDirectory }, (error, stdout, stderr) => {
+      if (stderr) {
+        utils.showError(stderr);
+      } else {
+
+        // Output the gulp process messages
+        const lines = stdout.split(/\r{0,1}\n/);
+
+        for (const line of lines) {
+          if (line.length > 0) {
+            utils.outputLog(line);
+          }
+        }
+
+        utils.showInfo(`The execution of '${context.task}' completed successfully.`, `Executed '${context.task}'.`);
+
+        // Clear the cached process - it has completed and so cannot be terminated
+        _cache[context.task] = undefined;
+      }
+    });
+
+    // Cache the process for termination
+    _cache[context.task] = process;
+  }
 }
 
 function terminateProcess(context: TaskContext, callback: () => void): void {
