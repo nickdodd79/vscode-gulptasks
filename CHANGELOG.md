@@ -1,3 +1,10 @@
+## 1.0.0
+- Provides a new UI that supports multiple gulp files in a workspace.
+- Added icons to indicate execution state of a task.
+- Fixed process output for long running tasks (e.g. gulp.watch).
+- Supports global and local installs of gulp.
+- Includes workspace specific environmental variables for gulp processes.
+
 ## 0.0.13
 - Added terminal execution and 'runInTerminal' setting (defaults to false).
 

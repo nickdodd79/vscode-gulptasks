@@ -1,33 +1,72 @@
-'use strict';
+import { ExtensionContext } from 'vscode';
+import { workspace, window } from 'vscode';
+import { EXTENSION_ID, EXPLORER_ID } from './models/constants';
+import { ContextCommand } from './models/constants';
+import { Logger } from './logging/logger';
+import { GulpService } from './services/gulp-service';
+import { FileService } from './services/file-service';
+import { CommandService } from './services/command-service';
+import { ProcessService } from './services/process-service';
+import { Explorer } from './views/explorer';
 
-import * as vscode from 'vscode';
-import * as process from './tasks-process';
-
-import { TasksProvider } from './tasks-provider';
-
-let _task: process.TaskContext | undefined;
-
-function registerCommand(context: vscode.ExtensionContext, command: string, callback: (...args: any[]) => any): void {
-  const registration = vscode.commands.registerCommand(command, callback);
-  context.subscriptions.push(registration);
+interface LegacyConfig {
+  file: string;
+  runInTerminal: boolean;
+  discovery: {
+    dir: string;
+    dirExclusions: string[];
+  }
 }
 
-export function activate(context: vscode.ExtensionContext): void {
-  const workspaceRoot = vscode.workspace.rootPath;
-  const provider = new TasksProvider(workspaceRoot);
-  const registration = vscode.window.registerTreeDataProvider('gulptasks', provider);
+export function activate(context: ExtensionContext): void {
 
-  registerCommand(context, 'gulptasks.select', task => _task = task);
-  registerCommand(context, 'gulptasks.execute', () => process.execute(_task));
-  registerCommand(context, 'gulptasks.terminate', () => process.terminate(_task));
-  registerCommand(context, 'gulptasks.restart', () => process.restart(_task));
+  // Resolve a gulp service to be used (local or global)
+  const logger = new Logger();
+  const commands = new CommandService();
+  const processes = new ProcessService();
 
-  registerCommand(context, 'gulptasks.refresh', () => {
-    provider.refresh();
+  context.subscriptions.push(logger);
 
-    // Clear the selected task - prevent execution without an tree item being selected
-    _task = undefined;
-  });
+  logger.output.log('Initializing gulp...')
 
-  context.subscriptions.push(registration);
+  GulpService
+    .resolveInstall(processes)
+    .then(async gulp => {
+      const output = gulp.context.join('\r\n> ');
+      logger.output.log(`> ${output}`);
+
+      // Check and notify if legacy settings might need manually migrating
+      const config = workspace.getConfiguration();
+      const legacy = config.get<LegacyConfig>(EXTENSION_ID);
+
+      if (legacy.file || legacy.discovery) {
+        logger.alert.warn(`Some legacy settings have been detected that should be migrated.
+          Only the 'gulptasks.pattern' and 'gulptasks.filters' settings should used - all others will removed in a future release.`);
+      }
+
+      // Load the explorer tree
+      const files = new FileService();
+      const explorer = new Explorer(gulp, files, commands, logger);
+
+      await explorer.load();
+
+      // Register the explorer as a tree provider for disposing
+      const provider = window.registerTreeDataProvider(EXPLORER_ID, explorer);
+
+      context.subscriptions.push(explorer);
+      context.subscriptions.push(provider);
+
+      await commands.setContext(ContextCommand.Enabled, true);
+    })
+    .catch(async err => {
+      const message = err ? err.message || err : `try running 'npm i -g gulp'`;
+      const lines = message.split('\n');
+
+      logger.output.log(`Unable to resolve gulp\n> ${lines.join('\n> ')}.`);
+
+      await commands.setContext(ContextCommand.Enabled, false);
+    });
 }
+
+export function deactivate(): void
+{ }

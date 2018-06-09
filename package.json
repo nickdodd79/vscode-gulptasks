@@ -2,7 +2,7 @@
 	"name": "gulptasks",
 	"displayName": "Gulp Tasks",
 	"description": "A gulp task visualization and execution extension for Visual Studio Code",
-	"version": "0.0.13",
+	"version": "1.0.0",
 	"author": {
 		"name": "Nick Dodd"
 	},
@@ -13,34 +13,47 @@
 		"url": "https://github.com/nickdodd79/vscode-gulptasks"
 	},
 	"engines": {
-		"vscode": "^1.17.0"
+		"vscode": "^1.22.0"
 	},
 	"icon": "resources/gulp-logo.png",
 	"categories": [
 		"Other"
 	],
-	"activationEvents": [
-		"onView:gulptasks"
-	],
 	"main": "./out/extension",
+	"activationEvents": [
+		"*"
+	],
 	"contributes": {
 		"configuration": {
 			"title": "Gulp Tasks configuration",
 			"properties": {
+				"gulptasks.pattern": {
+					"type": "string",
+					"default": "**/gulpfile*.js",
+					"description": "A glob pattern for gulp file matching."
+				},
+				"gulptasks.filters": {
+					"type": "array",
+					"default": [
+						"!node_modules/**",
+						"!bower_components/**"
+					],
+					"description": "An array of globs used to include and exclude workspace paths."
+				},
 				"gulptasks.file": {
 					"type": "string",
 					"default": "",
-					"description": "Specifies an extact gulp file to load. If the files doesn't exist, the discovery process resumes."
-        },
-        "gulptasks.runInTerminal": {
+					"description": "[DEPRECATED] Specifies an extact gulp file to load. If the files doesn't exist, the discovery process resumes. This has been deprecated and 'gulptasks.pattern' should be used."
+				},
+				"gulptasks.runInTerminal": {
 					"type": "boolean",
 					"default": false,
-					"description": "Specifies whether gulp tasks are run in a terminal. Otherwise an output window is used."
+					"description": "[DEPRECATED] Specifies whether gulp tasks are run in a terminal. Otherwise an output window is used."
 				},
 				"gulptasks.discovery.dir": {
 					"type": "string",
 					"default": "",
-					"description": "Specifies a directory where the gulpfile.js should be discovered."
+					"description": "[DEPRECATED] Specifies a directory where the gulpfile.js should be discovered. This has been deprecated and 'gulptasks.filters' should be used."
 				},
 				"gulptasks.discovery.dirExclusions": {
 					"type": "array",
@@ -48,73 +61,74 @@
 						"node_modules/**",
 						"bower_components/**"
 					],
-					"description": "Specifies glob patterns used to exclude directories from discovery. Use '*' to exclude the root gulpfile.js."
+					"description": "[DEPRECATED] Specifies glob patterns used to exclude directories from discovery. Use '*' to exclude the root gulpfile.js. This has been deprecated and 'gulptasks.filters' should be used."
 				}
 			}
 		},
 		"views": {
 			"explorer": [
 				{
-					"id": "gulptasks",
-					"name": "Gulp Tasks"
+					"id": "gulptasks:explorer",
+					"name": "Gulp Tasks",
+					"when": "gulptasks:enabled"
 				}
 			]
 		},
 		"menus": {
 			"view/title": [
 				{
-					"command": "gulptasks.execute",
-					"when": "view == gulptasks",
+					"command": "gulptasks:execute",
+					"when": "view == gulptasks:explorer && gulptasks:canExecute",
 					"group": "navigation@1"
 				},
 				{
-					"command": "gulptasks.terminate",
-					"when": "view == gulptasks",
+					"command": "gulptasks:terminate",
+					"when": "view == gulptasks:explorer && gulptasks:canTerminate",
 					"group": "navigation@2"
 				},
 				{
-					"command": "gulptasks.restart",
-					"when": "view == gulptasks",
+					"command": "gulptasks:restart",
+					"when": "view == gulptasks:explorer && gulptasks:canRestart",
 					"group": "navigation@3"
 				},
 				{
-					"command": "gulptasks.refresh",
-					"when": "view == gulptasks",
+					"command": "gulptasks:refresh",
+					"when": "view == gulptasks:explorer",
 					"group": "navigation@4"
 				}
 			]
 		},
 		"commands": [
 			{
-				"command": "gulptasks.execute",
+				"command": "gulptasks:execute",
 				"title": "Execute Task",
 				"icon": {
-					"light": "resources/light/execute.svg",
-					"dark": "resources/dark/execute.svg"
+					"dark": "resources/icons/execute-dark.svg",
+					"light": "resources/icons/execute-light.svg"
 				}
 			},
 			{
-				"command": "gulptasks.terminate",
+				"command": "gulptasks:terminate",
 				"title": "Terminate Task",
 				"icon": {
-					"light": "resources/light/terminate.svg",
-					"dark": "resources/dark/terminate.svg"
+					"dark": "resources/icons/terminate-dark.svg",
+					"light": "resources/icons/terminate-light.svg"
 				}
 			},
 			{
-				"command": "gulptasks.restart",
+				"command": "gulptasks:restart",
 				"title": "Restart Task",
 				"icon": {
-					"light": "resources/light/restart.svg",
-					"dark": "resources/dark/restart.svg"
+					"dark": "resources/icons/restart-dark.svg",
+					"light": "resources/icons/restart-light.svg"
 				}
 			},
 			{
-				"command": "gulptasks.refresh",
+				"command": "gulptasks:refresh",
 				"title": "Refresh Tasks",
 				"icon": {
-					"light": "resources/light/refresh.svg",
-					"dark": "resources/dark/refresh.svg"
+					"dark": "resources/icons/refresh-dark.svg",
+					"light": "resources/icons/refresh-light.svg"
 				}
 			}
 		]
@@ -127,14 +141,12 @@
 		"test": "npm run compile && node ./node_modules/vscode/bin/test"
 	},
 	"dependencies": {
-		"filehound": "^1.16.2",
-		"minimatch": "^3.0.4"
+		"minimatch": "3.0.4"
 	},
 	"devDependencies": {
-		"@types/minimatch": "^3.0.1",
-		"@types/mocha": "^2.2.42",
-		"@types/node": "^7.0.43",
-		"typescript": "^2.5.3",
-		"vscode": "^1.1.5"
+		"@types/minimatch": "3.0.3",
+		"@types/node": "10.3.2",
+		"typescript": "2.9.1",
+		"vscode": "1.1.18"
 	}
 }
