@@ -1,3 +1,6 @@
+## 1.1.1
+- Removed legacy settings and default values.
+
 ## 1.1.0
 - Added settings to control notifications when tasks are executed, terminated or restarted.
 
