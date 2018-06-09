@@ -1,5 +1,4 @@
-!resources/dark/**
-!resources/light/**
+!resources/icons/**
 !resources/gulp-logo.png
 resources/**
 .vscode/**

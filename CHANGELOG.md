@@ -1,3 +1,6 @@
+## 1.0.1
+- Changed build filter to include icon files.
+
 ## 1.0.0
 - Provides a new UI that supports multiple gulp files in a workspace.
 - Added icons to indicate execution state of a task.
