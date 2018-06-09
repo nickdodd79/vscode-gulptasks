@@ -1,3 +1,6 @@
+## 1.1.0
+- Added settings to control notifications when tasks are executed, terminated or restarted.
+
 ## 1.0.1
 - Changed build filter to include icon files.
 

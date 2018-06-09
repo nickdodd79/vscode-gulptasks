@@ -1,6 +1,10 @@
 import { Event, EventEmitter, TreeItem, TreeDataProvider, ProviderResult, Disposable } from 'vscode';
+import { workspace } from 'vscode';
+import { EXTENSION_ID } from '../models/constants';
 import { ExplorerNodeType} from '../models/constants';
 import { ActionCommand, ContextCommand} from '../models/constants';
+import { Settings } from '../models/settings';
+import { Notifications } from '../models/notifications';
 import { File } from '../models/file';
 import { Logger } from '../logging/logger';
 import { GulpService } from '../services/gulp-service';
@@ -147,7 +151,10 @@ export class Explorer implements TreeDataProvider<ExplorerNode>, Disposable {
           this.update(node);
 
           this.logger.output.log(`> ${node.name}: COMPLETED`);
-          this.logger.alert.info(`The task '${node.name}' has completed successfully.`);
+
+          if (this.showNotification(notifications => notifications.executed)) {
+            this.logger.alert.info(`The task '${node.name}' has completed successfully.`);
+          }
         })
         .catch(() => {
           node.task = undefined;
@@ -176,7 +183,10 @@ export class Explorer implements TreeDataProvider<ExplorerNode>, Disposable {
           this.update(node);
 
           this.logger.output.log(`> ${node.name}: TERMINATED`);
-          this.logger.alert.info(`The task '${node.name}' has been terminated.`);
+
+          if (this.showNotification(notifications => notifications.terminated)) {
+            this.logger.alert.info(`The task '${node.name}' has been terminated.`);
+          }
         });
     }
   }
@@ -195,9 +205,19 @@ export class Explorer implements TreeDataProvider<ExplorerNode>, Disposable {
         .terminate()
         .then(() => {
           this.executeTask();
-          this.logger.alert.info(`The task '${node.name}' has been restarted.`);
+
+          if (this.showNotification(notifications => notifications.restarted)) {
+            this.logger.alert.info(`The task '${node.name}' has been restarted.`);
+          }
         });
     }
+  }
+
+  private showNotification(callback: (notifications: Notifications) => boolean): boolean {
+    const config = workspace.getConfiguration();
+    const settings = config.get<Settings>(EXTENSION_ID);
+
+    return callback(settings.notifications);
   }
 
   private update(node: TaskNode): void {
