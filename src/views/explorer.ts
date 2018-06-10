@@ -237,6 +237,6 @@ export class Explorer implements TreeDataProvider<ExplorerNode>, Disposable {
     this.commands.setContext(ContextCommand.CanTerminate, canTerminate);
     this.commands.setContext(ContextCommand.CanRestart, canRestart);
 
-    this._onDidChangeTreeData.fire();
+    this._onDidChangeTreeData.fire(node);
   }
 }
