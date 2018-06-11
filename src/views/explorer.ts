@@ -42,11 +42,7 @@ export class Explorer implements TreeDataProvider<ExplorerNode>, Disposable {
   }
 
   getChildren(node?: ExplorerNode): ProviderResult<ExplorerNode[]> {
-    if (!node) {
-      return this.root.empty ? [this.root] : this.root.children();
-    }
-
-    return node.children();
+    return node ? node.children() : this.root.children();
   }
 
   async load(): Promise<void> {

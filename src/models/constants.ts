@@ -4,6 +4,7 @@ export const EXPLORER_ID = 'gulptasks:explorer';
 export const EXTENSION_NAME = 'Gulp Tasks';
 
 export enum ExplorerNodeType {
+  Empty = 'empty',
   Root = 'root',
   File = 'file',
   Task = 'task'
