@@ -1,3 +1,6 @@
+## 1.1.2
+- Update to display empty messages when no files or tasks.
+
 ## 1.1.1
 - Removed legacy settings and default values.
 
