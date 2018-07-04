@@ -1,3 +1,6 @@
+## 1.1.3
+- Fix for default filters in multi-root workspace.
+
 ## 1.1.2
 - Update to display empty messages when no files or tasks.
 
