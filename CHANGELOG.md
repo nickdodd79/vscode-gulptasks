@@ -1,3 +1,6 @@
+## 1.2.0
+- Added ability to execute a task via double click.
+
 ## 1.1.3
 - Fix for default filters in multi-root workspace.
 

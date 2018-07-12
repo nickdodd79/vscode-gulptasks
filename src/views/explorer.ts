@@ -1,8 +1,8 @@
 import { Event, EventEmitter, TreeItem, TreeDataProvider, ProviderResult, Disposable } from 'vscode';
 import { workspace } from 'vscode';
 import { EXTENSION_ID } from '../models/constants';
-import { ExplorerNodeType} from '../models/constants';
-import { ActionCommand, ContextCommand} from '../models/constants';
+import { ExplorerNodeType } from '../models/constants';
+import { ActionCommand, ContextCommand } from '../models/constants';
 import { Settings } from '../models/settings';
 import { Notifications } from '../models/notifications';
 import { File } from '../models/file';
@@ -17,6 +17,7 @@ import { TaskNode } from './task-node';
 
 export class Explorer implements TreeDataProvider<ExplorerNode>, Disposable {
 
+  private timestamp: number;
   private selected: TaskNode;
 
   private root = new RootNode();
@@ -30,7 +31,7 @@ export class Explorer implements TreeDataProvider<ExplorerNode>, Disposable {
   constructor(private readonly gulp: GulpService, private readonly files: FileService, private readonly commands: CommandService, private readonly logger: Logger) {
 
     // Register handlers for the commands
-    this.commands.registerCommand(ActionCommand.Select, this.selectTask, this);
+    this.commands.registerCommand(ActionCommand.Select, this.handleSelect, this);
     this.commands.registerCommand(ActionCommand.Execute, this.executeTask, this);
     this.commands.registerCommand(ActionCommand.Terminate, this.terminateTask, this);
     this.commands.registerCommand(ActionCommand.Restart, this.restartTask, this);
@@ -113,6 +114,28 @@ export class Explorer implements TreeDataProvider<ExplorerNode>, Disposable {
     return nodes;
   }
 
+  private handleSelect(node: ExplorerNode): void {
+
+    // Check if a timestamp is active and a node has already been selected
+    if (this.timestamp && this.selected === node) {
+
+      // If so activiate the task execution
+      // This is a hack in place of proper double click functionality in vscode
+      const now = Date.now();
+      const interval = now - this.timestamp;
+
+      this.logger.output.log(`> interval: ${interval}ms`);
+
+      this.executeTask();
+      this.timestamp = undefined;
+
+    } else {
+
+      // Otherwise simply select the node
+      this.selectTask(node);
+    }
+  }
+
   private selectTask(node: ExplorerNode): void {
 
     // Track the node if it is has a task type
@@ -121,6 +144,21 @@ export class Explorer implements TreeDataProvider<ExplorerNode>, Disposable {
       : undefined;
 
     this.update(this.selected);
+
+    // Set the select timestamp to enable double click capabilities
+    this.timestamp = Date.now();
+
+    // Use an interval to manage the timestamp lifetime (max 500ms interval)
+    setInterval(() => {
+      if (this.timestamp) {
+        const now = Date.now();
+        const interval = now - this.timestamp;
+
+        if (interval >= 500) {
+          this.timestamp = undefined;
+        }
+      }
+    }, 500);
   }
 
   private executeTask(): void {
@@ -128,7 +166,7 @@ export class Explorer implements TreeDataProvider<ExplorerNode>, Disposable {
     // Track the selected node at point of execution in case it changes during execution
     const node = this.selected;
 
-    if (node) {
+    if (node && !node.task) {
 
       // Create a task process and handle any output
       // Also update the tree to switch icons and state
@@ -168,7 +206,7 @@ export class Explorer implements TreeDataProvider<ExplorerNode>, Disposable {
     // Track the selected node at point of execution in case it changes during execution
     const node = this.selected;
 
-    if (node) {
+    if (node && node.task) {
 
       // Kill the task process and update the tree
       node.task
@@ -192,7 +230,7 @@ export class Explorer implements TreeDataProvider<ExplorerNode>, Disposable {
     // Track the selected node at point of execution in case it changes during execution
     const node = this.selected;
 
-    if (node) {
+    if (node && node.task) {
 
       // Terminate the task and when completed execute again
       this.logger.output.log(`> ${node.name}: RESTARTING`);
@@ -200,6 +238,8 @@ export class Explorer implements TreeDataProvider<ExplorerNode>, Disposable {
       node.task
         .terminate()
         .then(() => {
+          node.task = undefined;
+
           this.executeTask();
 
           if (this.showNotification(notifications => notifications.restarted)) {
