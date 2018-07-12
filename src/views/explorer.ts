@@ -121,11 +121,6 @@ export class Explorer implements TreeDataProvider<ExplorerNode>, Disposable {
 
       // If so activiate the task execution
       // This is a hack in place of proper double click functionality in vscode
-      const now = Date.now();
-      const interval = now - this.timestamp;
-
-      this.logger.output.log(`> interval: ${interval}ms`);
-
       this.executeTask();
       this.timestamp = undefined;
 
