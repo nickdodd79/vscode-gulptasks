@@ -12,7 +12,7 @@ export class GulpService {
     return new Task(callback => {
 
       // Create a process instance
-      const proc = this.processes.createProcess(this.root, [name, `--gulpfile "${file.absolutePath}"`], data => {
+      const proc = this.processes.createProcess(this.root, [name, `--cwd "${this.root}" --gulpfile "${file.absolutePath}"`], data => {
 
         // Convert the data to a set of lines
         const value = data.toString();
@@ -45,7 +45,7 @@ export class GulpService {
 
       // Load and return the tasks for the provided file
       this.processes
-        .createProcess(this.root, ['--tasks-simple', `--gulpfile "${file.absolutePath}"`])
+        .createProcess(this.root, ['--tasks-simple', `--cwd "${this.root}" --gulpfile "${file.absolutePath}"`])
         .execute()
         .then(result => {
           const tasks = GulpService.sanitizeResult(result);
