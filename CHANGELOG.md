@@ -1,3 +1,6 @@
+## 1.2.1
+- Added cwd argument value to gulp commands.
+
 ## 1.2.0
 - Added ability to execute a task via double click.
 
