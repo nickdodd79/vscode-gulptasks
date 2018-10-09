@@ -1,5 +1,7 @@
 import { workspace } from 'vscode';
 import { join } from 'path';
+import { EXTENSION_ID } from '../models/constants';
+import { Settings } from '../models/settings';
 import { File } from '../models/file';
 import { Task } from '../models/task';
 import { ProcessService } from './process-service';
@@ -12,7 +14,9 @@ export class GulpService {
     return new Task(callback => {
 
       // Create a process instance
-      const proc = this.processes.createProcess(this.root, [name, `--cwd "${this.root}" --gulpfile "${file.absolutePath}"`], data => {
+      // Check if any custom args have been configured
+      const args = this.buildArgs(file);
+      const proc = this.processes.createProcess(this.root, [name, ...args], data => {
 
         // Convert the data to a set of lines
         const value = data.toString();
@@ -28,7 +32,7 @@ export class GulpService {
       });
 
       // Then execute and handle the result
-      callback = callback || (() => {});
+      callback = callback || (() => { });
 
       proc
         .execute()
@@ -44,8 +48,10 @@ export class GulpService {
     return new Promise<string[]>((resolve, reject) => {
 
       // Load and return the tasks for the provided file
+      const args = this.buildArgs(file);
+
       this.processes
-        .createProcess(this.root, ['--tasks-simple', `--cwd "${this.root}" --gulpfile "${file.absolutePath}"`])
+        .createProcess(this.root, ['--tasks-simple', ...args])
         .execute()
         .then(result => {
           const tasks = GulpService.sanitizeResult(result);
@@ -75,6 +81,14 @@ export class GulpService {
             .catch(err => reject(err));
         });
     });
+  }
+
+  private buildArgs(file: File): string[] {
+    const config = workspace.getConfiguration();
+    const settings = config.get<Settings>(EXTENSION_ID);
+    const args = settings.args || [];
+
+    return [`--cwd "${this.root}"`, `--gulpfile "${file.absolutePath}"`, '--color', ...args];
   }
 
   private static processResult(scope: string, result: string, root: string, processes: ProcessService, resolve: (gulp: GulpService) => void): void {
