@@ -44,6 +44,25 @@
 					"type": "array",
 					"default": [],
 					"description": "An array of args to be included when executing gulp commands."
+        },
+        "gulptasks.output.show": {
+          "type": "string",
+          "default": "Task Starts",
+          "enum": [
+            "Task Progress",
+            "Task Starts",
+            "Task Completes",
+            "Task Errors",
+            "Never"
+          ],
+          "enumDescriptions": [
+            "When a task outputs progress (every message)",
+            "When a task starts",
+            "When a task finishes or errors",
+            "When a task errors",
+            "Never"
+          ],
+					"description": "A value specifying when the output window should auto show."
 				},
 				"gulptasks.notifications.executed": {
 					"type": "boolean",

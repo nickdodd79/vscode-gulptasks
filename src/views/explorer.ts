@@ -4,6 +4,7 @@ import { EXTENSION_ID } from '../models/constants';
 import { ExplorerNodeType } from '../models/constants';
 import { ActionCommand, ContextCommand } from '../models/constants';
 import { Settings } from '../models/settings';
+import { OutputSource } from '../models/output-source';
 import { Notifications } from '../models/notifications';
 import { File } from '../models/file';
 import { Logger } from '../logging/logger';
@@ -162,11 +163,12 @@ export class Explorer implements TreeDataProvider<ExplorerNode>, Disposable {
     const node = this.selected;
 
     if (node && !node.task) {
+      this.logger.output.log(`> ${node.name}: STARTED`, OutputSource.Start);
 
       // Create a task process and handle any output
       // Also update the tree to switch icons and state
       node.task = this.gulp.createTask(node.name, node.file, output => {
-        this.logger.output.log(`> ${node.name}: ${output}`);
+        this.logger.output.log(`> ${node.name}: ${output}`, OutputSource.Progress);
       });
 
       this.update(node);
@@ -179,7 +181,7 @@ export class Explorer implements TreeDataProvider<ExplorerNode>, Disposable {
 
           this.update(node);
 
-          this.logger.output.log(`> ${node.name}: COMPLETED`);
+          this.logger.output.log(`> ${node.name}: COMPLETED`, OutputSource.Complete);
 
           if (this.showNotification(notifications => notifications.executed)) {
             this.logger.alert.info(`The task '${node.name}' has completed successfully.`);
@@ -190,7 +192,7 @@ export class Explorer implements TreeDataProvider<ExplorerNode>, Disposable {
 
           this.update(node);
 
-          this.logger.output.log(`> ${node.name}: FAILED`);
+          this.logger.output.log(`> ${node.name}: FAILED`, OutputSource.Error);
           this.logger.alert.error(`The task '${node.name}' has failed.`);
         });
     }

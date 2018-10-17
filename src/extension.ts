@@ -41,7 +41,7 @@ export function activate(context: ExtensionContext): void {
 
       if (legacy.file || legacy.discovery) {
         logger.alert.warn(`Some legacy settings have been detected that should be migrated.
-          Only the 'gulptasks.pattern' and 'gulptasks.filters' settings should used.`);
+          Only the 'gulptasks.pattern' and 'gulptasks.filters' settings should be used.`);
       }
 
       // Load the explorer tree

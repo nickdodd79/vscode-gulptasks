@@ -88,7 +88,7 @@ export class GulpService {
     const settings = config.get<Settings>(EXTENSION_ID);
     const args = settings.args || [];
 
-    return [`--cwd "${this.root}"`, `--gulpfile "${file.absolutePath}"`, '--color', ...args];
+    return [`--cwd "${this.root}"`, `--gulpfile "${file.absolutePath}"`, ...args];
   }
 
   private static processResult(scope: string, result: string, root: string, processes: ProcessService, resolve: (gulp: GulpService) => void): void {
