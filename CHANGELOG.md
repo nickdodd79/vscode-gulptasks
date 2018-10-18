@@ -1,3 +1,6 @@
+## 1.3.1
+- Realigned descriptions for output channel setting.
+
 ## 1.3.0
 - Added custom argument configuration allowing extension to gulp commands.
 - Added configuration to display the output channel at different stages of a command's execution.
