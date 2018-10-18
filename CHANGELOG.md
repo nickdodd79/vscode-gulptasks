@@ -1,3 +1,7 @@
+## 1.3.0
+- Added custom argument configuration allowing extension to gulp commands.
+- Added configuration to display the output channel at different stages of a command's execution.
+
 ## 1.2.1
 - Added cwd argument value to gulp commands.
 

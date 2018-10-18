@@ -1,6 +1,6 @@
 export enum OutputShow {
-  TaskProgress = 'Task Progress',
   TaskStarts = 'Task Starts',
+  TaskProgress = 'Task Progress',
   TaskCompletes = 'Task Completes',
   TaskErrors = 'Task Errors',
   Never = 'Never'
