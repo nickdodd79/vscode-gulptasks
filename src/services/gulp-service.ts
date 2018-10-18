@@ -13,6 +13,8 @@ export class GulpService {
   createTask(name: string, file: File, logger: (output: string) => void): Task {
     return new Task(callback => {
 
+      callback = callback || (() => { });
+
       // Create a process instance
       // Check if any custom args have been configured
       const args = this.buildArgs(file);
@@ -22,18 +24,32 @@ export class GulpService {
         const value = data.toString();
         const lines = GulpService.sanitizeResult(value);
 
-        if (logger) {
+        // With each line check if an error exists and whether it needs to be logged
+        let err;
+
+        for (const line of lines) {
+
+          // HACK: if 'errored after' is found, then assume a nested task has failed
+          //       therefore call the callback with an error description
+          const lower = line.toLowerCase();
+
+          if (lower.indexOf('errored after') > -1) {
+            err = new Error(`Task '${name}' in file '${file.relativePath}' failed.`);
+          }
 
           // Feed each line to the logger function
-          for (const line of lines) {
+          if (logger) {
             logger(line);
           }
+        }
+
+        // If an err is found, return it
+        if (err) {
+          callback(err);
         }
       });
 
       // Then execute and handle the result
-      callback = callback || (() => { });
-
       proc
         .execute()
         .then(() => callback())
